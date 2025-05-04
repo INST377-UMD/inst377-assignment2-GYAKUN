@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css">
+    <title>Dog Carousel</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+        #carousel {
+            margin: 20px auto;
+            width: 600px;
+            height: 400px;
+            overflow: hidden;
+            position: relative;
+        }
+        #dogImage {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            cursor: pointer;
+        }
+        .breed-button {
+            margin: 5px;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .breed-info {
+            display: none;
+            margin-top: 20px;
+            border: 1px solid #ccc;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        #audioInstructions {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/annyang/2.6.1/annyang.min.js"></script>
+</head>
+<body>
+    <nav>
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="stocks.html">Stocks</a></li>
+            <li><a href="dogs.html">Dogs</a></li>
+        </ul>
+    </nav>
+    <h1>Random Dogs</h1>
+    <div id="carousel">
+        <img id="dogImage" src="" alt="Random Dog">
+    </div>
+    <div id="breedButtons"></div>
+    <div id="breedInfo" class="breed-info"></div>
+    <div id="audioInstructions">
+        <h2>Audio Instructions</h2>
+        <p>Say "Next" to see the next dog image.</p>
+        <p>Say the breed name to see more information about that breed.</p>
+        <p>Say "Hello" for a greeting.</p>
+        <p>Say "Change the color to <color>" to change the background color.</p>
+        <p>Say "Navigate to <page>" to go to a specific page.</p>
+        <button onclick="turnOnAudio()">Turn On Audio</button>
+        <button onclick="turnOffAudio()">Turn Off Audio</button>
+    </div>
+
+    <script>
+        const dogImage = document.getElementById('dogImage');
+        const breedButtons = document.getElementById('breedButtons');
+        const breedInfo = document.getElementById('breedInfo');
+        let breeds = [];
+
+        async function fetchDogImage() {
+            const response = await fetch('https://dog.ceo/api/breeds/image/random');
+            const data = await response.json();
+            dogImage.src = data.message;
+        }
+
+        async function fetchBreeds() {
+            const response = await fetch('https://dogapi.dog/api/v2/breeds');
+            const data = await response.json();
+            breeds = data.data;
+            createBreedButtons();
+        }
+
+        function createBreedButtons() {
+            breeds.forEach(breed => {
+                const button = document.createElement('button');
+                button.innerText = breed.attributes.name;
+                button.className = 'breed-button';
+                button.setAttribute('data-id', breed.id);
+                button.onclick = () => showBreedInfo(breed);
+                breedButtons.appendChild(button);
+            });
+        }
+
+        function showBreedInfo(breed) {
+            breedInfo.innerHTML = `
+                <h2>${breed.attributes.name}</h2>
+                <p>${breed.attributes.description}</p>
+                <p>Min Life: ${breed.attributes.life.min} years</p>
+                <p>Max Life: ${breed.attributes.life.max} years</p>
+                <p>Hypoallergenic: ${breed.attributes.hypoallergenic ? 'Yes' : 'No'}</p>
+            `;
+            breedInfo.style.display = 'block';
+        }
+
+        dogImage.onclick = fetchDogImage;
+        fetchDogImage();
+        fetchBreeds();
+    
+        if (annyang) {
+            const commands = {
+                'next': fetchDogImage,
+            };
+            annyang.addCommands(commands);
+            annyang.start();
+        }
+        function turnOnAudio() {
+            annyang.start();
+        }
+        function turnOffAudio() {
+            annyang.abort();
+        }
+        annyang.addCommands({
+            'hello': function() { alert('Hello World'); },
+            'change the color to *color': function(color) { document.body.style.backgroundColor = color; },
+            'navigate to *page': function(page) { window.location.href = page.toLowerCase() + '.html'; }
+        });
+    </script>
+
+</body>
+</html>

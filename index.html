@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css">
+    <title>Home</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/annyang/2.6.1/annyang.min.js"></script>
+    <style>
+        .button-54 {
+            font-family: "Open Sans", sans-serif;
+            font-size: 16px;
+            letter-spacing: 2px;
+            text-decoration: none;
+            text-transform: uppercase;
+            color: #000;
+            cursor: pointer;
+            border: 3px solid;
+            padding: 0.25em 0.5em;
+            box-shadow: 1px 1px 0px 0px, 2px 2px 0px 0px, 3px 3px 0px 0px, 4px 4px 0px 0px, 5px 5px 0px 0px;
+            position: relative;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: manipulation;
+            margin: 10px;
+        }
+
+        .button-54:active {
+            box-shadow: 0px 0px 0px 0px;
+            top: 5px;
+            left: 5px;
+        }
+
+        #quote {
+            margin-top: 50px;
+            text-align: center;
+        }
+
+        .button-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        @media (min-width: 768px) {
+            .button-54 {
+                padding: 0.25em 0.75em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="stocks.html">Stocks</a></li>
+            <li><a href="dogs.html">Dogs</a></li>
+        </ul>
+    </nav>
+    <h1>These are some different activities we can try!</h1>
+    <div class="button-container">
+        <button class="button-54" onclick="location.href='stocks.html'">Stocks</button>
+        <button class="button-54" onclick="location.href='dogs.html'">Dogs</button>
+    </div>
+    <div id="quote"></div>
+    <div class="audio-instructions">
+        <h2>Audio Instructions</h2>
+        <p>Say "Hello" for a greeting.</p>
+        <p>Say "Change the color to <color>" to change the background color.</p>
+        <p>Say "Navigate to <page>" to go to a specific page.</p>
+        <button onclick="turnOnAudio()">Turn On Audio</button>
+        <button onclick="turnOffAudio()">Turn Off Audio</button>
+    </div>
+    <script>
+        function turnOnAudio() {
+            annyang.start();
+        }
+        function turnOffAudio() {
+            annyang.abort();
+        }
+        annyang.addCommands({
+            'hello': function() { alert('Hello World'); },
+            'change the color to *color': function(color) { document.body.style.backgroundColor = color; },
+            'navigate to *page': function(page) { window.location.href = page.toLowerCase() + '.html'; }
+        });
+        window.onload = function() {
+            fetch('https://zenquotes.io/api/random')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('quote').innerText = data[0].q + " - " + data[0].a;
+                });
+        };
+    </script>
+</body>
+</html>
